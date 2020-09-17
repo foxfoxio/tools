@@ -19,6 +19,7 @@ import (
 	"fmt"
 	htmlTemplate "html/template"
 	"io"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -109,6 +110,9 @@ func (hw *htmlWriter) write(nodes ...types.Node) error {
 			hw.writeString("\n")
 		case *types.IframeNode:
 			hw.iframe(n)
+			hw.writeString("\n")
+		case *types.ScriptNode:
+			hw.script(n)
 			hw.writeString("\n")
 		}
 		if hw.err != nil {
@@ -361,4 +365,18 @@ func (hw *htmlWriter) youtube(n *types.YouTubeNode) {
 
 func (hw *htmlWriter) iframe(n *types.IframeNode) {
 	hw.writeFmt(`<iframe class="embedded-iframe" src=%q></iframe>`, n.URL)
+}
+
+var (
+	// textCleaner replaces "smart quotes" and other unicode runes
+	// with their respective ascii versions.
+	textCleaner = strings.NewReplacer(
+		"\u2019", "'", "\u201C", `"`, "\u201D", `"`, "\u2026", "...",
+		"\u00A0", " ", "\u0085", " ",
+	)
+)
+
+func (hw *htmlWriter) script(n *types.ScriptNode) {
+	fmt.Fprintln(os.Stdout, " ✨ script")
+	hw.writeFmt(textCleaner.Replace(n.URL))
 }

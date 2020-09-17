@@ -676,6 +676,8 @@ func image(ds *docState) types.Node {
 	errorAlt := ""
 	if strings.Contains(alt, "youtube.com/watch") {
 		return youtube(ds)
+	} else if strings.Contains(alt, "<script") {
+		return script(ds)
 	} else if strings.Contains(alt, "https://") {
 		u, err := url.Parse(alt)
 		if err != nil {
@@ -736,6 +738,14 @@ func iframe(ds *docState) types.Node {
 		return nil
 	}
 	n := types.NewIframeNode(u.String())
+	n.MutateBlock(true)
+	return n
+}
+
+func script(ds *docState) types.Node {
+	alt := nodeAttr(ds.cur, "alt")
+
+	n := types.NewScriptNode(alt)
 	n.MutateBlock(true)
 	return n
 }
