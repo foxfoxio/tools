@@ -42,6 +42,7 @@ const (
 	NodeHeaderFAQ            // Special kind of header, FAQ
 	NodeYouTube              // YouTube video
 	NodeIframe               // Embedded iframe
+	NodeScript               // Embedded script
 	NodeImport               // A node which holds content imported from another resource
 )
 
@@ -558,4 +559,23 @@ type IframeNode struct {
 // Empty returns true if iframe's URL field is empty.
 func (iframe *IframeNode) Empty() bool {
 	return iframe.URL != ""
+}
+
+// NewScriptNode creates a new embedded script.
+func NewScriptNode(url string) *ScriptNode {
+	return &ScriptNode{
+		node: node{typ: NodeScript},
+		URL:  url,
+	}
+}
+
+// ScriptNode is an embeddes script.
+type ScriptNode struct {
+	node
+	URL string
+}
+
+// Empty returns true if script's URL field is empty.
+func (script *ScriptNode) Empty() bool {
+	return script.URL != ""
 }
