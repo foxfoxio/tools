@@ -5,3 +5,6 @@ bazel-*
 debug.test
 *pb.go
 node_modules
+site/app
+site/codelabs
+
