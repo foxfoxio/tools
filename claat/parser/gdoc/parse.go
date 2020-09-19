@@ -52,7 +52,7 @@ func (p *Parser) Parse(r io.Reader, opts parser.Options) (*types.Codelab, error)
 }
 
 // ParseFragment parses a codelab fragment exported in HTML from Google Docs.
-func (p *Parser) ParseFragment(r io.Reader) ([]types.Node, error) {
+func (p *Parser) ParseFragment(r io.Reader, opts parser.Options) ([]types.Node, error) {
 	// TODO: use html.Tokenizer instead
 	doc, err := html.Parse(r)
 	if err != nil {
@@ -622,7 +622,8 @@ func code(ds *docState, term bool) types.Node {
 	} else if ds.cur.Parent.FirstChild == ds.cur && ds.cur.Parent.DataAtom != atom.Span {
 		v = "\n" + v
 	}
-	n := types.NewCodeNode(v, term)
+	var lang string;
+	n := types.NewCodeNode(v, term, lang)
 	n.MutateBlock(td)
 	return n
 }

@@ -27,9 +27,9 @@ import (
 )
 
 // MD renders nodes as markdown for the target env.
-func MD(env string, nodes ...types.Node) (string, error) {
+func MD(ctx Context, nodes ...types.Node) (string, error) {
 	var buf bytes.Buffer
-	if err := WriteMD(&buf, env, nodes...); err != nil {
+	if err := WriteMD(&buf, ctx.Env, nodes...); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
@@ -42,12 +42,12 @@ func WriteMD(w io.Writer, env string, nodes ...types.Node) error {
 }
 
 type mdWriter struct {
-	w         io.Writer // output writer
-	env       string    // target environment
-	err       error     // error during any writeXxx methods
-	lineStart bool
-	isWritingTableCell bool // used to override lineStart for correct cell formatting
-	Prefix    string    // prefix for e.g. blockquote content
+	w                  io.Writer // output writer
+	env                string    // target environment
+	err                error     // error during any writeXxx methods
+	lineStart          bool
+	isWritingTableCell bool   // used to override lineStart for correct cell formatting
+	Prefix             string // prefix for e.g. blockquote content
 }
 
 func (mw *mdWriter) writeBytes(b []byte) {
@@ -130,42 +130,36 @@ func (mw *mdWriter) write(nodes ...types.Node) error {
 }
 
 func (mw *mdWriter) text(n *types.TextNode) {
-	t := strings.TrimSpace(n.Value)
-	tl := len([]rune(t))
-	nl := len([]rune(n.Value))
-	ls := nl - len([]rune(strings.TrimLeft(n.Value, " ")))
-	// Don't just copy above and TrimRight instead of TrimLeft to avoid " " counting as 1
-	// left space and 1 right space. Instead, number of right spaces is
-	// length of whole string - length of string with spaces trimmed - number of left spaces.
-	rs := nl - tl - ls
+	tr := strings.TrimLeft(n.Value, " \t\n\r\f\v")
+	left := n.Value[0:(len(n.Value) - len(tr))]
+	t := strings.TrimRight(tr, " \t\n\r\f\v")
+	right := tr[len(t):len(tr)]
 
-	mw.writeString(strings.Repeat(" ", ls))
-	if tl > 0 {
-		if n.Bold {
-			mw.writeString("**")
-		}
-		if n.Italic {
-			mw.writeString("*")
-		}
-		if n.Code {
-			mw.writeString("`")
-		}
+	mw.writeString(left)
+
+	if n.Bold {
+		mw.writeString("**")
+	}
+	if n.Italic {
+		mw.writeString("*")
+	}
+	if n.Code {
+		mw.writeString("`")
 	}
 
 	mw.writeString(t)
 
-	if tl > 0 {
-		if n.Code {
-			mw.writeString("`")
-		}
-		if n.Italic {
-			mw.writeString("*")
-		}
-		if n.Bold {
-			mw.writeString("**")
-		}
+	if n.Code {
+		mw.writeString("`")
 	}
-	mw.writeString(strings.Repeat(" ", rs))
+	if n.Italic {
+		mw.writeString("*")
+	}
+	if n.Bold {
+		mw.writeString("**")
+	}
+
+	mw.writeString(right)
 }
 
 func (mw *mdWriter) image(n *types.ImageNode) {
@@ -215,22 +209,12 @@ func (mw *mdWriter) url(n *types.URLNode) {
 func (mw *mdWriter) code(n *types.CodeNode) {
 	mw.newBlock()
 	defer mw.writeBytes(newLine)
-	if n.Term {
-		var buf bytes.Buffer
-		const prefix = "    "
-		lineStart := true
-		for _, r := range n.Value {
-			if lineStart {
-				buf.WriteString(prefix)
-			}
-			buf.WriteRune(r)
-			lineStart = r == '\n'
-		}
-		mw.writeBytes(buf.Bytes())
-		return
-	}
 	mw.writeString("```")
-	mw.writeString(n.Lang)
+	if n.Term {
+		mw.writeString("console")
+	} else {
+		mw.writeString(n.Lang)
+	}
 	mw.writeBytes(newLine)
 	mw.writeString(n.Value)
 	if !mw.lineStart {
@@ -314,7 +298,7 @@ func (mw *mdWriter) table(n *types.GridNode) {
 			}
 
 			// Write cell separator
-			if(cellIndex != len(row) - 1){
+			if cellIndex != len(row)-1 {
 				mw.writeString(" | ")
 			} else {
 				mw.writeBytes(newLine)
@@ -322,10 +306,10 @@ func (mw *mdWriter) table(n *types.GridNode) {
 		}
 
 		// Write header bottom border
-		if(rowIndex == 0){
+		if rowIndex == 0 {
 			for index, _ := range row {
 				mw.writeString("---")
-				if(index != len(row) - 1){
+				if index != len(row)-1 {
 					mw.writeString(" | ")
 				}
 			}
