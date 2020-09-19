@@ -540,7 +540,8 @@ var IframeWhitelist = []string{
 	"codepen.io",
 	"glitch.com",
 	"carto.com",
-	"codesandbox.io"
+	"codesandbox.io",
+	"runkit.com",
 }
 
 // NewIframeNode creates a new embedded iframe.
