@@ -36,9 +36,10 @@ import (
 	"github.com/googlecodelabs/tools/claat/parser"
 	"github.com/googlecodelabs/tools/claat/types"
 	"github.com/googlecodelabs/tools/claat/util"
-	"github.com/russross/blackfriday/v2"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
+	gmhtml "github.com/yuin/goldmark/renderer/html"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 // Metadata constants for the YAML header
@@ -248,7 +249,7 @@ func renderToHTML(b []byte, mdp parser.MarkdownParser) ([]byte, error) {
 
 		return blackfriday.Run(b, blackfriday.WithExtensions(extns), blackfriday.WithRenderer(r)), nil
 	case parser.Goldmark:
-		gmParser := goldmark.New(goldmark.WithExtensions(extension.Typographer, extension.Table))
+		gmParser := goldmark.New(goldmark.WithRendererOptions(gmhtml.WithUnsafe()), goldmark.WithExtensions(extension.Typographer, extension.Table))
 		var out bytes.Buffer
 		if err := gmParser.Convert(b, &out); err != nil {
 			panic(err)
@@ -656,12 +657,18 @@ func tableRow(ds *docState) []*types.GridCell {
 		nn = parser.BlockNodes(nn)
 		nn = parser.CompactNodes(nn)
 		ds.pop()
-		if len(nn) == 0 {
-			continue
-		}
 		cs, err := strconv.Atoi(nodeAttr(td, "colspan"))
 		if err != nil {
 			cs = 1
+			for ns := td.NextSibling; ns != nil; ns = ns.NextSibling {
+				if ns.DataAtom != atom.Td && ns.DataAtom != atom.Th {
+					continue
+				}
+				if ns.FirstChild != nil {
+					break
+				}
+				cs++
+			}
 		}
 		rs, err := strconv.Atoi(nodeAttr(td, "rowspan"))
 		if err != nil {
@@ -677,21 +684,28 @@ func tableRow(ds *docState) []*types.GridCell {
 	return row
 }
 
-// survey expects a name Node followed by 1 or more inputs Nodes. Each input node is expected to have a value attribute.
+// survey expects 1 or more name Nodes followed by 1 or more input Nodes.
+// Each input node is expected to have a value attribute.
 func survey(ds *docState) types.Node {
 	var gg []*types.SurveyGroup
-	hn := ds.cur
-	n := findAtom(hn, atom.Name)
-	inputs := findChildAtoms(hn, atom.Input)
-	opt := surveyOpt(inputs)
-
-	if len(opt) > 0 {
-		gg = append(gg, &types.SurveyGroup{
-			Name:    strings.TrimSpace(n.FirstChild.Data),
-			Options: opt,
-		})
+	ns := findChildAtoms(ds.cur, atom.Name)
+	for _, n := range ns {
+		var inputs []*html.Node
+		for hn := n.NextSibling; hn != nil; hn = hn.NextSibling {
+			if hn.DataAtom == atom.Input {
+				inputs = append(inputs, hn)
+			} else if hn.DataAtom == atom.Name {
+				break
+			}
+		}
+		opt := surveyOpt(inputs)
+		if len(opt) > 0 {
+			gg = append(gg, &types.SurveyGroup{
+				Name:    strings.TrimSpace(n.FirstChild.Data),
+				Options: opt,
+			})
+		}
 	}
-
 	if len(gg) == 0 {
 		return nil
 	}
@@ -784,12 +798,14 @@ func list(ds *docState) types.Node {
 // It may also return a YouTubeNode if alt property contains specific substring.
 func image(ds *docState) types.Node {
 	alt := nodeAttr(ds.cur, "alt")
+	// Author-added double quotes in attributes break html syntax
+	alt = html.EscapeString(alt)
 	if strings.Contains(alt, "youtube.com/watch") {
 		return youtube(ds)
 	} else if strings.Contains(alt, "<script") {
 		return script(ds)
 	} else if strings.Contains(alt, "https://") {
-		u, err := url.Parse(nodeAttr(ds.cur, "alt"))
+		u, err := url.Parse(alt)
 		if err != nil {
 			return nil
 		}
@@ -812,12 +828,13 @@ func image(ds *docState) types.Node {
 
 	n := types.NewImageNode(s)
 
-	if alt := nodeAttr(ds.cur, "alt"); alt != "" {
+	if alt != "" {
 		n.Alt = alt
 	}
 
 	if title := nodeAttr(ds.cur, "title"); title != "" {
-		n.Title = title
+		// Author-added double quotes in attributes break html syntax
+		n.Title = html.EscapeString(title)
 	}
 
 	if ws := nodeAttr(ds.cur, "width"); ws != "" {
