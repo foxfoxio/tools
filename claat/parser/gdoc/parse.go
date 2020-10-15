@@ -478,6 +478,9 @@ func header(ds *docState) types.Node {
 		return nil
 	}
 	n := types.NewHeaderNode(headerLevel[ds.cur.DataAtom], nodes...)
+	if n.Empty() {
+		return nil
+	}
 	switch strings.ToLower(stringifyNode(ds.cur, true, false)) {
 	case headerLearn, headerCover:
 		n.MutateType(types.NodeHeaderCheck)
@@ -532,9 +535,6 @@ func tableRow(ds *docState) []*types.GridCell {
 		nn = parser.BlockNodes(nn)
 		nn = parser.CompactNodes(nn)
 		ds.pop()
-		if len(nn) == 0 {
-			continue
-		}
 		cs, err := strconv.Atoi(nodeAttr(td, "colspan"))
 		if err != nil {
 			cs = 1
@@ -622,7 +622,7 @@ func code(ds *docState, term bool) types.Node {
 	} else if ds.cur.Parent.FirstChild == ds.cur && ds.cur.Parent.DataAtom != atom.Span {
 		v = "\n" + v
 	}
-	var lang string;
+	var lang string
 	n := types.NewCodeNode(v, term, lang)
 	n.MutateBlock(td)
 	return n
@@ -669,13 +669,17 @@ func list(ds *docState) types.Node {
 // or an IframeNode if the alt property contains a URL other than youtube.
 func image(ds *docState) types.Node {
 	alt := nodeAttr(ds.cur, "alt")
+	// Consecutive newlines aren't supported in markdown images, and
+	// author-added double quotes in attributes break html syntax
+	alt = strings.Replace(alt, "\n", " ", -1)
+	alt = html.EscapeString(alt)
 	errorAlt := ""
 	if strings.Contains(alt, "youtube.com/watch") {
 		return youtube(ds)
 	} else if strings.Contains(alt, "<script") {
 		return script(ds)
 	} else if strings.Contains(alt, "https://") {
-		u, err := url.Parse(nodeAttr(ds.cur, "alt"))
+		u, err := url.Parse(alt)
 		if err != nil {
 			return nil
 		}
@@ -703,9 +707,10 @@ func image(ds *docState) types.Node {
 	if errorAlt != "" {
 		n.Alt = errorAlt
 	} else {
-		n.Alt = nodeAttr(ds.cur, "alt")
+		n.Alt = alt
 	}
-	n.Title = nodeAttr(ds.cur, "title")
+	// Author-added double quotes in attributes break html syntax
+	n.Title = html.EscapeString(nodeAttr(ds.cur, "title"))
 	return n
 }
 
@@ -843,9 +848,12 @@ func text(ds *docState) types.Node {
 
 	v := stringifyNode(ds.cur, false, true)
 	n := types.NewTextNode(v)
-	n.Bold = bold
-	n.Italic = italic
-	n.Code = code
+	// Only apply styling if the node contains non-whitespace.
+	if len(strings.TrimSpace(v)) > 0 {
+		n.Bold = bold
+		n.Italic = italic
+		n.Code = code
+	}
 	n.MutateBlock(findBlockParent(ds.cur))
 	return n
 }

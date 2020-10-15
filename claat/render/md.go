@@ -17,6 +17,7 @@ package render
 import (
 	"bytes"
 	"fmt"
+	"html"
 	"io"
 	"path"
 	"sort"
@@ -29,40 +30,47 @@ import (
 // MD renders nodes as markdown for the target env.
 func MD(ctx Context, nodes ...types.Node) (string, error) {
 	var buf bytes.Buffer
-	if err := WriteMD(&buf, ctx.Env, nodes...); err != nil {
+	if err := WriteMD(&buf, ctx.Env, ctx.Format, nodes...); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
 }
 
 // WriteMD does the same as MD but outputs rendered markup to w.
-func WriteMD(w io.Writer, env string, nodes ...types.Node) error {
-	mw := mdWriter{w: w, env: env, Prefix: ""}
+func WriteMD(w io.Writer, env string, fmt string, nodes ...types.Node) error {
+	mw := mdWriter{w: w, env: env, format: fmt, Prefix: []byte("")}
 	return mw.write(nodes...)
 }
 
 type mdWriter struct {
 	w                  io.Writer // output writer
 	env                string    // target environment
+	format             string    // target template
 	err                error     // error during any writeXxx methods
 	lineStart          bool
 	isWritingTableCell bool   // used to override lineStart for correct cell formatting
-	Prefix             string // prefix for e.g. blockquote content
+	isWritingList      bool   // used for override newblock when needed
+	Prefix             []byte // prefix for e.g. blockquote content
 }
 
 func (mw *mdWriter) writeBytes(b []byte) {
 	if mw.err != nil {
 		return
 	}
+	if mw.lineStart {
+		_, mw.err = mw.w.Write(mw.Prefix)
+	}
 	mw.lineStart = len(b) > 0 && b[len(b)-1] == '\n'
 	_, mw.err = mw.w.Write(b)
 }
 
 func (mw *mdWriter) writeString(s string) {
-	if mw.lineStart {
-		s = mw.Prefix + s
-	}
 	mw.writeBytes([]byte(s))
+}
+
+func (mw *mdWriter) writeEscape(s string) {
+	s = html.EscapeString(s)
+	mw.writeString(ReplaceDoubleCurlyBracketsWithEntity(s))
 }
 
 func (mw *mdWriter) space() {
@@ -115,8 +123,8 @@ func (mw *mdWriter) write(nodes ...types.Node) error {
 			mw.table(n)
 		case *types.InfoboxNode:
 			mw.infobox(n)
-		//case *types.SurveyNode:
-		//	mw.survey(n)
+		case *types.SurveyNode:
+			mw.survey(n)
 		case *types.HeaderNode:
 			mw.header(n)
 		case *types.YouTubeNode:
@@ -147,6 +155,9 @@ func (mw *mdWriter) text(n *types.TextNode) {
 		mw.writeString("`")
 	}
 
+	t = strings.Replace(t, "<", "&lt;", -1)
+	t = strings.Replace(t, ">", "&gt;", -1)
+
 	mw.writeString(t)
 
 	if n.Code {
@@ -165,16 +176,16 @@ func (mw *mdWriter) text(n *types.TextNode) {
 func (mw *mdWriter) image(n *types.ImageNode) {
 	mw.space()
 	mw.writeString("<img ")
-	mw.writeString(fmt.Sprintf("src=\"%s\" ", n.Src))
+	mw.writeString(fmt.Sprintf("src=%q ", n.Src))
 
 	if n.Alt != "" {
-		mw.writeString(fmt.Sprintf("alt=\"%s\" ", n.Alt))
+		mw.writeString(fmt.Sprintf("alt=%q ", n.Alt))
 	} else {
-		mw.writeString(fmt.Sprintf("alt=\"%s\" ", path.Base(n.Src)))
+		mw.writeString(fmt.Sprintf("alt=%q ", path.Base(n.Src)))
 	}
 
 	if n.Title != "" {
-		mw.writeString(fmt.Sprintf("title=\"%q\" ", n.Title))
+		mw.writeString(fmt.Sprintf("title=%q ", n.Title))
 	}
 
 	// If available append width to the src string of the image.
@@ -207,6 +218,9 @@ func (mw *mdWriter) url(n *types.URLNode) {
 }
 
 func (mw *mdWriter) code(n *types.CodeNode) {
+	if n.Empty() {
+		return
+	}
 	mw.newBlock()
 	defer mw.writeBytes(newLine)
 	mw.writeString("```")
@@ -234,6 +248,7 @@ func (mw *mdWriter) list(n *types.ListNode) {
 }
 
 func (mw *mdWriter) itemsList(n *types.ItemsListNode) {
+	mw.isWritingList = true
 	if n.Block() == true {
 		mw.newBlock()
 	}
@@ -248,6 +263,7 @@ func (mw *mdWriter) itemsList(n *types.ItemsListNode) {
 			mw.writeBytes(newLine)
 		}
 	}
+	mw.isWritingList = false
 }
 
 func (mw *mdWriter) infobox(n *types.InfoboxNode) {
@@ -260,16 +276,34 @@ func (mw *mdWriter) infobox(n *types.InfoboxNode) {
 	if n.Kind == types.InfoboxNegative {
 		k = "aside negative"
 	}
-	mw.Prefix = "> "
+	mw.Prefix = []byte("> ")
 	mw.writeString(k)
 	mw.writeString("\n")
 
 	for _, cn := range n.Content.Nodes {
-		cn.MutateBlock(false)
 		mw.write(cn)
 	}
 
-	mw.Prefix = ""
+	mw.Prefix = []byte("")
+}
+
+func (mw *mdWriter) survey(n *types.SurveyNode) {
+	mw.newBlock()
+	mw.writeString("<form>")
+	mw.writeBytes(newLine)
+	for _, g := range n.Groups {
+		mw.writeString("<name>")
+		mw.writeEscape(g.Name)
+		mw.writeString("</name>")
+		mw.writeBytes(newLine)
+		for _, o := range g.Options {
+			mw.writeString("<input value=\"")
+			mw.writeEscape(o)
+			mw.writeString("\">")
+			mw.writeBytes(newLine)
+		}
+	}
+	mw.writeString("</form>")
 }
 
 func (mw *mdWriter) header(n *types.HeaderNode) {
@@ -283,39 +317,68 @@ func (mw *mdWriter) header(n *types.HeaderNode) {
 }
 
 func (mw *mdWriter) youtube(n *types.YouTubeNode) {
-	mw.newBlock()
+	if !mw.isWritingList {
+		mw.newBlock()
+	}
 	mw.writeString(fmt.Sprintf(`<video id="%s"></video>`, n.VideoID))
 }
 
 func (mw *mdWriter) table(n *types.GridNode) {
-	for rowIndex, row := range n.Rows {
-		for cellIndex, cell := range row {
-			mw.isWritingTableCell = true
+	// If table content is empty, don't output the table.
+	if n.Empty() {
+		return
+	}
 
-			for _, cn := range cell.Content.Nodes {
-				cn.MutateBlock(false) // don't treat content as a new block
-				mw.write(cn)
+	mw.writeBytes(newLine)
+	maxcols := maxColsInTable(n)
+	for rowIndex, row := range n.Rows {
+		mw.writeString("|")
+		for _, cell := range row {
+			mw.isWritingTableCell = true
+			mw.writeString(" ")
+
+			// Check cell content for newlines and replace with inline HTML if newlines are present.
+			var nw bytes.Buffer
+			WriteMD(&nw, mw.env, mw.format, cell.Content.Nodes...)
+			if bytes.ContainsRune(nw.Bytes(), '\n') {
+				for _, cn := range cell.Content.Nodes {
+					cn.MutateBlock(false) // don't treat content as a new block
+					var nw2 bytes.Buffer
+					WriteHTML(&nw2, mw.env, mw.format, cn)
+					mw.writeBytes(bytes.Replace(nw2.Bytes(), []byte("\n"), []byte(""), -1))
+				}
+			} else {
+				mw.writeBytes(nw.Bytes())
 			}
 
-			// Write cell separator
-			if cellIndex != len(row)-1 {
-				mw.writeString(" | ")
-			} else {
-				mw.writeBytes(newLine)
+			mw.writeString(" |")
+		}
+		if rowIndex == 0 && len(row) < maxcols {
+			for i := 0; i < maxcols-len(row); i++ {
+				mw.writeString(" |")
 			}
 		}
+		mw.writeBytes(newLine)
 
 		// Write header bottom border
 		if rowIndex == 0 {
-			for index, _ := range row {
-				mw.writeString("---")
-				if index != len(row)-1 {
-					mw.writeString(" | ")
-				}
+			mw.writeString("|")
+			for i := 0; i < maxcols; i++ {
+				mw.writeString(" --- |")
 			}
 			mw.writeBytes(newLine)
 		}
 
 		mw.isWritingTableCell = false
 	}
+}
+
+func maxColsInTable(n *types.GridNode) int {
+	m := 0
+	for _, row := range n.Rows {
+		if len(row) > m {
+			m = len(row)
+		}
+	}
+	return m
 }
