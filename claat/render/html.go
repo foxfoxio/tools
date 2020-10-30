@@ -364,7 +364,7 @@ func (hw *htmlWriter) youtube(n *types.YouTubeNode) {
 }
 
 func (hw *htmlWriter) iframe(n *types.IframeNode) {
-	hw.writeFmt(`<iframe class="embedded-iframe" src=%q></iframe>`, n.URL)
+	hw.writeFmt(`<iframe class="embedded-iframe" src=%q allowfullscreen></iframe>`, n.URL)
 }
 
 var (
