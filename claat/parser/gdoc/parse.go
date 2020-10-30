@@ -669,15 +669,20 @@ func list(ds *docState) types.Node {
 // or an IframeNode if the alt property contains a URL other than youtube.
 func image(ds *docState) types.Node {
 	alt := nodeAttr(ds.cur, "alt")
+
+	// Allow script injection
+	if strings.Contains(alt, "<script") {
+		return script(ds)
+	}
+
 	// Consecutive newlines aren't supported in markdown images, and
 	// author-added double quotes in attributes break html syntax
 	alt = strings.Replace(alt, "\n", " ", -1)
 	alt = html.EscapeString(alt)
+
 	errorAlt := ""
 	if strings.Contains(alt, "youtube.com/watch") {
 		return youtube(ds)
-	} else if strings.Contains(alt, "<script") {
-		return script(ds)
 	} else if strings.Contains(alt, "https://") {
 		u, err := url.Parse(alt)
 		if err != nil {
