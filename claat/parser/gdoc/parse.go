@@ -505,6 +505,23 @@ func infobox(ds *docState) types.Node {
 	if isInfoboxNegative(ds.css, ds.cur) {
 		kind = types.InfoboxNegative
 	}
+
+	if isInfoboxRed(ds.css, ds.cur) {
+		kind = types.InfoboxRed
+	}
+
+	if isInfoboxGreen(ds.css, ds.cur) {
+		kind = types.InfoboxGreen
+	}
+
+	if isInfoboxBlue(ds.css, ds.cur) {
+		kind = types.InfoboxBlue
+	}
+
+	if isInfoboxYellow(ds.css, ds.cur) {
+		kind = types.InfoboxYellow
+	}
+
 	return types.NewInfoboxNode(kind, nn...)
 }
 

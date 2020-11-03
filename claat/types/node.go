@@ -496,6 +496,10 @@ type InfoboxKind string
 const (
 	InfoboxPositive InfoboxKind = "special"
 	InfoboxNegative InfoboxKind = "warning"
+	InfoboxRed InfoboxKind = "red"
+	InfoboxGreen InfoboxKind = "green"
+	InfoboxBlue InfoboxKind = "blue"
+	InfoboxYellow InfoboxKind = "yellow"
 )
 
 // InfoboxNode is any regular header, a checklist header, or an FAQ header.

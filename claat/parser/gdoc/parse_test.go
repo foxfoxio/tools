@@ -298,6 +298,10 @@ func TestParseDoc(t *testing.T) {
 		.bold { font-weight: bold }
 		.ita { font-style: italic }
 		.nibox { background-color: #fce5cd }
+		.redbox { background-color: #f4cccc }
+		.greenbox { background-color: #d9ead3 }
+		.bluebox { background-color: #c9daf8 }
+		.yellowbox { background-color: #fff2cc }
 		.survey { background-color: #cfe2f3 }
 		.comment { border: 1px solid black }
 	</style></head>
@@ -541,6 +545,10 @@ func TestParseFragment(t *testing.T) {
 		.bold { font-weight: bold }
 		.ita { font-style: italic }
 		.nibox { background-color: #fce5cd }
+		.redbox { background-color: #f4cccc }
+		.greenbox { background-color: #d9ead3 }
+		.bluebox { background-color: #c9daf8 }
+		.yellowbox { background-color: #fff2cc }
 		.survey { background-color: #cfe2f3 }
 		.comment { border: 1px solid black }
 	</style></head>
