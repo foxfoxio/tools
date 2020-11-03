@@ -86,7 +86,11 @@ func isInfobox(css cssStyle, hn *html.Node) bool {
 		return false
 	}
 	return hasClassStyle(css, hn, "background-color", ibPositiveColor) ||
-		isInfoboxNegative(css, hn)
+		isInfoboxNegative(css, hn) || 
+		isInfoboxRed(css, hn) || 
+		isInfoboxGreen(css, hn) || 
+		isInfoboxBlue(css, hn) || 
+		isInfoboxYellow(css, hn)
 }
 
 func isInfoboxNegative(css cssStyle, hn *html.Node) bool {
@@ -94,6 +98,35 @@ func isInfoboxNegative(css cssStyle, hn *html.Node) bool {
 		return false
 	}
 	return hasClassStyle(css, hn, "background-color", ibNegativeColor)
+}
+
+func isInfoboxRed(css cssStyle, hn *html.Node) bool {
+	if hn.DataAtom != atom.Td {
+		return false
+	}
+	return hasClassStyle(css, hn, "background-color", ibRedColor)
+}
+
+func isInfoboxGreen(css cssStyle, hn *html.Node) bool {
+	if hn.DataAtom != atom.Td {
+		return false
+	}
+	return hasClassStyle(css, hn, "background-color", ibGreenColor)
+}
+
+func isInfoboxBlue(css cssStyle, hn *html.Node) bool {
+	if hn.DataAtom != atom.Td {
+		return false
+	}
+
+	return hasClassStyle(css, hn, "background-color", ibBlueColor)
+}
+
+func isInfoboxYellow(css cssStyle, hn *html.Node) bool {
+	if hn.DataAtom != atom.Td {
+		return false
+	}
+	return hasClassStyle(css, hn, "background-color", ibYellowColor)
 }
 
 func isSurvey(css cssStyle, hn *html.Node) bool {

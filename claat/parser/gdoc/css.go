@@ -32,6 +32,10 @@ const (
 	fontConsole     = "consolas"    // terminal text format in original doc
 	ibPositiveColor = "#d9ead3"     // positive infobox background
 	ibNegativeColor = "#fce5cd"     // negative infobox background
+	ibRedColor			=	"#f4cccc"     // red infobox background
+	ibGreenColor		=	"#d9ead3"   	// green infobox background
+	ibBlueColor			=	"#c9daf8"     // blue infobox background
+	ibYellowColor		=	"#fff2cc"   	// yellow infobox background
 	surveyColor     = "#cfe2f3"     // survey background color
 )
 
