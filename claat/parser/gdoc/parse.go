@@ -639,7 +639,8 @@ func code(ds *docState, term bool) types.Node {
 	} else if ds.cur.Parent.FirstChild == ds.cur && ds.cur.Parent.DataAtom != atom.Span {
 		v = "\n" + v
 	}
-	var lang string
+
+	var lang string = getLanguageFromColor(ds.css, ds.cur)
 	n := types.NewCodeNode(v, term, lang)
 	n.MutateBlock(td)
 	return n

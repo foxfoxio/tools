@@ -27,6 +27,145 @@ the License.
     />
     <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons" />
     <link rel="stylesheet" href="{{.Prefix}}/codelab-elements/codelab-elements.css" />
+    <style rel="stylesheet">
+      /**
+        * prism.js Monokai theme
+        * @author Sam Clarke
+        */
+      code[class*="language-"],
+      pre[class*="language-"] {
+        color: #f8f8f2;
+        background: none;
+        font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        word-wrap: normal;
+        line-height: 1.4;
+      
+        -moz-tab-size: 8;
+        -o-tab-size: 8;
+        tab-size: 8;
+      
+        -webkit-hyphens: none;
+        -moz-hyphens: none;
+        -ms-hyphens: none;
+        hyphens: none;
+      }
+      
+      /* Code blocks */
+      pre[class*="language-"] {
+        padding: .8em;
+        overflow: auto;
+        background: #272822;
+      }
+      
+      /* Inline code */
+      :not(pre) > code[class*="language-"] {
+        padding: .1em;
+        border-radius: .3em;
+        white-space: normal;
+        background: #272822;
+      }
+      
+      .token.comment,
+      .token.blockquote,
+      .token.shebang.important,
+      .token.shebang {
+        color: #75715e;
+      }
+      
+      .token.operator,
+      .token.important,
+      .token.keyword,
+      .token.rule,
+      .token.tag,
+      .token.deleted,
+      .token.selector,
+      .token.prolog,
+      .token.title .token.punctuation {
+        color: #f92672;
+      }
+      
+      .token.property,
+      .token.entity,
+      .token.atrule,
+      .token.command,
+      .token.code {
+        color: #66d9ef;
+      }
+      
+      .token.regex,
+      .token.atrule .token.property {
+        color: #fd971f;
+      }
+      
+      .token.pseudo-element,
+      .token.id,
+      .token.class,
+      .token.class-name,
+      .token.pseudo-class,
+      .token.function,
+      .token.namespace,
+      .token.inserted,
+      .token.symbol,
+      .token.url-reference .token.variable,
+      .token.attr-name {
+        color: #a6e22e;
+      }
+      
+      .token.string,
+      .token.url,
+      .token.list,
+      .token.cdata,
+      .token.attr-value,
+      .token.attr-value a.token.url-link {
+        color: #e6db74;
+      }
+      
+      .token.constant,
+      .token.hexcode,
+      .token.builtin,
+      .token.number,
+      .token.boolean {
+        color: #ae81ff;
+      }
+      
+      .token.doctype,
+      .token.punctuation,
+      .token.variable,
+      .token.macro.property {
+        color: #f8f8f2;
+      }
+      
+      .token.entity {
+        cursor: help;
+      }
+      
+      .token.title,
+      .token.title .token.punctuation {
+        font-weight: bold;
+      }
+      
+      .token.bold {
+        font-weight: bold;
+      }
+      
+      .token.italic {
+        font-style: italic;
+      }
+      
+      /* YAML */
+      .language-yaml .token.atrule {
+        color: #f92672;
+      }
+      
+      /* Bash */
+      .language-bash .token.function {
+        color: #f92672;
+      }
+    </style>
     <style>
       .success {
         color: #1e8e3e;
@@ -34,6 +173,7 @@ the License.
       .error {
         color: red;
       }
+
       google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.red {
         border-color: #ff2970;
         background: #ffe1ea;
@@ -56,66 +196,6 @@ the License.
         border-color: #EA8600;
         background: #FEF7E0;
         color: #212124;
-      }
-
-      .hljs pre {
-        display: block;
-        overflow-x: auto;
-        background: #28323f;
-        color: #ddd;
-      }
-      .hljs-keyword,
-      .hljs-literal,
-      .hljs-name,
-      .hljs-selector-tag,
-      .hljs-strong,
-      .hljs-tag {
-        color: #f92672;
-      }
-      .hljs-code {
-        color: #66d9ef;
-      }
-      .hljs-class .hljs-title {
-        color: #fff;
-      }
-      .hljs-attribute,
-      .hljs-link,
-      .hljs-regexp,
-      .hljs-symbol {
-        color: #bf79db;
-      }
-      .hljs-addition,
-      .hljs-built_in,
-      .hljs-builtin-name,
-      .hljs-bullet,
-      .hljs-emphasis,
-      .hljs-section,
-      .hljs-selector-attr,
-      .hljs-selector-pseudo,
-      .hljs-string,
-      .hljs-subst,
-      .hljs-template-tag,
-      .hljs-template-variable,
-      .hljs-title,
-      .hljs-type,
-      .hljs-variable {
-        color: #a6e22e;
-      }
-      .hljs-comment,
-      .hljs-deletion,
-      .hljs-meta,
-      .hljs-quote {
-        color: #75715e;
-      }
-      .hljs-doctag,
-      .hljs-keyword,
-      .hljs-literal,
-      .hljs-section,
-      .hljs-selector-id,
-      .hljs-selector-tag,
-      .hljs-title,
-      .hljs-type {
-        font-weight: 700;
       }
 
       body .gist .gist-data {
@@ -308,9 +388,32 @@ the License.
     <!-- <script src="{{.Prefix}}/codelab-elements/prettify.js"></script> -->
     <script src="{{.Prefix}}/codelab-elements/codelab-elements.js"></script>
     <script src="//support.google.com/inapp/api.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/prism.min.js" integrity="sha512-9+422Bs3A87UkWfp+qV80Nfv9arhbCXKY1rxrF2seorI36mIIstMiuBfyKLF1yH1nnzQkEWq2xrzT4XU3Z+vrA==" crossorigin="anonymous"></script>
     <script>
-      hljs.initHighlightingOnLoad()
+Prism.languages.sql = {
+	'comment': {
+		pattern: /(^|[^\\])(?:\/\*[\s\S]*?\*\/|(?:--|\/\/|#).*)/,
+		lookbehind: true
+	},
+	'variable': [
+		{
+			pattern: /@(["'`])(?:\\[\s\S]|(?!\1)[^\\])+\1/,
+			greedy: true
+		},
+		/@[\w.$]+/
+	],
+	'string': {
+		pattern: /(^|[^@\\])("|'|`)(?:\\[\s\S]|(?!\2)[^\\]|\2\2)*\2/,
+		greedy: true,
+		lookbehind: true
+	},
+	'function': /\b(?:TIMESTAMP|SAFE_CAST|CAST|EXTRACT|IFNULL|AVG|COUNT|FIRST|FORMAT|LAST|LCASE|LEN|MAX|MID|MIN|MOD|NOW|ROUND|SUM|UCASE)(?=\s*\()/i, // Should we highlight user defined functions too?
+	'keyword': /\b(?:ACTION|ADD|AFTER|ALGORITHM|ALL|ALTER|ANALYZE|ANY|APPLY|AS|ASC|AUTHORIZATION|AUTO_INCREMENT|BACKUP|BDB|BEGIN|BERKELEYDB|BIGINT|BINARY|BIT|BLOB|BOOL|BOOLEAN|BREAK|BROWSE|BTREE|BULK|BY|CALL|CASCADED?|CASE|CHAIN|CHAR(?:ACTER|SET)?|CHECK(?:POINT)?|CLOSE|CLUSTERED|COALESCE|COLLATE|COLUMNS?|COMMENT|COMMIT(?:TED)?|COMPUTE|CONNECT|CONSISTENT|CONSTRAINT|CONTAINS(?:TABLE)?|CONTINUE|CONVERT|CREATE|CROSS|CURRENT(?:_DATE|_TIME|_TIMESTAMP|_USER)?|CURSOR|CYCLE|DATA(?:BASES?)?|DATE(?:TIME)?|DAY|DBCC|DEALLOCATE|DEC|DECIMAL|DECLARE|DEFAULT|DEFINER|DELAYED|DELETE|DELIMITERS?|DENY|DESC|DESCRIBE|DETERMINISTIC|DISABLE|DISCARD|DISK|DISTINCT|DISTINCTROW|DISTRIBUTED|DO|DOUBLE|DROP|DUMMY|DUMP(?:FILE)?|DUPLICATE|ELSE(?:IF)?|ENABLE|ENCLOSED|END|ENGINE|ENUM|ERRLVL|ERRORS|ESCAPED?|EXCEPT|EXEC(?:UTE)?|EXISTS|EXIT|EXPLAIN|EXTENDED|FETCH|FIELDS|FILE|FILLFACTOR|FIRST|FIXED|FLOAT|FOLLOWING|FOR(?: EACH ROW)?|FORCE|FOREIGN|FREETEXT(?:TABLE)?|FROM|FULL|FUNCTION|GEOMETRY(?:COLLECTION)?|GLOBAL|GOTO|GRANT|GROUP|HANDLER|HASH|HAVING|HOLDLOCK|HOUR|IDENTITY(?:_INSERT|COL)?|IF|IGNORE|IMPORT|INDEX|INFILE|INNER|INNODB|INOUT|INSERT|INT|INTEGER|INTERSECT|INTERVAL|INTO|INVOKER|ISOLATION|ITERATE|JOIN|KEYS?|KILL|LANGUAGE|LAST|LEAVE|LEFT|LEVEL|LIMIT|LINENO|LINES|LINESTRING|LOAD|LOCAL|LOCK|LONG(?:BLOB|TEXT)|LOOP|MATCH(?:ED)?|MEDIUM(?:BLOB|INT|TEXT)|MERGE|MIDDLEINT|MINUTE|MODE|MODIFIES|MODIFY|MONTH|MULTI(?:LINESTRING|POINT|POLYGON)|NATIONAL|NATURAL|NCHAR|NEXT|NO|NONCLUSTERED|NULLIF|NUMERIC|OFF?|OFFSETS?|ON|OPEN(?:DATASOURCE|QUERY|ROWSET)?|OPTIMIZE|OPTION(?:ALLY)?|ORDER|OUT(?:ER|FILE)?|OVER|PARTIAL|PARTITION|PERCENT|PIVOT|PLAN|POINT|POLYGON|PRECEDING|PRECISION|PREPARE|PREV|PRIMARY|PRINT|PRIVILEGES|PROC(?:EDURE)?|PUBLIC|PURGE|QUICK|RAISERROR|READS?|REAL|RECONFIGURE|REFERENCES|RELEASE|RENAME|REPEAT(?:ABLE)?|REPLACE|REPLICATION|REQUIRE|RESIGNAL|RESTORE|RESTRICT|RETURN(?:S|ING)?|REVOKE|RIGHT|ROLLBACK|ROUTINE|ROW(?:COUNT|GUIDCOL|S)?|RTREE|RULE|SAVE(?:POINT)?|SCHEMA|SECOND|SELECT|SERIAL(?:IZABLE)?|SESSION(?:_USER)?|SET(?:USER)?|SHARE|SHOW|SHUTDOWN|SIMPLE|SMALLINT|SNAPSHOT|SOME|SONAME|SQL|START(?:ING)?|STATISTICS|STATUS|STRIPED|SYSTEM_USER|TABLES?|TABLESPACE|TEMP(?:ORARY|TABLE)?|TERMINATED|TEXT(?:SIZE)?|THEN|TIME(?:STAMP)?|TINY(?:BLOB|INT|TEXT)|TOP?|TRAN(?:SACTIONS?)?|TRIGGER|TRUNCATE|TSEQUAL|TYPES?|UNBOUNDED|UNCOMMITTED|UNDEFINED|UNION|UNIQUE|UNLOCK|UNPIVOT|UNSIGNED|UPDATE(?:TEXT)?|USAGE|USE|USER|USING|VALUES?|VAR(?:BINARY|CHAR|CHARACTER|YING)|VIEW|WAITFOR|WARNINGS|WHEN|WHERE|WHILE|WITH(?: ROLLUP|IN)?|WORK|WRITE(?:TEXT)?|YEAR)\b/i,
+	'boolean': /\b(?:TRUE|FALSE|NULL)\b/i,
+	'number': /\b0x[\da-f]+\b|\b\d+\.?\d*|\B\.\d+\b/i,
+	'operator': /[-+*\/=%^~]|&&?|\|\|?|!=?|<(?:=>?|<|>)?|>[>=]?|\b(?:AND|BETWEEN|IN|LIKE|NOT|OR|IS|DIV|REGEXP|RLIKE|SOUNDS LIKE|XOR)\b/i,
+	'punctuation': /[;[\]()`,.]/
+};
     </script>
   </body>
 </html>

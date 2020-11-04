@@ -179,21 +179,21 @@ class CodelabStep extends HTMLElement {
     // Inject the title in the containers.
     dom.insertChildAt(this.inner_, title, 0);
 
-    // Add prettyprint to code blocks.
-    const codeElements = this.inner_.querySelectorAll('pre code');
-    codeElements.forEach((el) => {
-      if (window['prettyPrintOne'] instanceof Function) {
-        const code = window['prettyPrintOne'](el.innerHTML);
-        // Sanitizer that preserves class names for syntax highlighting.
-        const sanitizer =
-            new HtmlSanitizer.Builder().withCustomTokenPolicy(identity).build();
-        safe.setInnerHtml(el, sanitizer.sanitize(code));
-      } else {
-        el.classList.add('prettyprint');
-      }
-      this.eventHandler_.listen(
-        el, 'copy', () => this.handleSnippetCopy_(el));
-    });
+    // // Add prettyprint to code blocks.
+    // const codeElements = this.inner_.querySelectorAll('pre code');
+    // codeElements.forEach((el) => {
+    //   if (window['prettyPrintOne'] instanceof Function) {
+    //     const code = window['prettyPrintOne'](el.innerHTML);
+    //     // Sanitizer that preserves class names for syntax highlighting.
+    //     const sanitizer =
+    //         new HtmlSanitizer.Builder().withCustomTokenPolicy(identity).build();
+    //     safe.setInnerHtml(el, sanitizer.sanitize(code));
+    //   } else {
+    //     el.classList.add('prettyprint');
+    //   }
+    //   this.eventHandler_.listen(
+    //     el, 'copy', () => this.handleSnippetCopy_(el));
+    // });
 
     // Re-insert the about element before the instructions.
     if (this.about_) {
