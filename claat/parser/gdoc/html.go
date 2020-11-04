@@ -154,6 +154,21 @@ func isList(hn *html.Node) bool {
 	return hn.DataAtom == atom.Ul || hn.DataAtom == atom.Ol
 }
 
+func getLanguageFromColor(css cssStyle, hn *html.Node) string {
+	if hn.Type == html.TextNode {
+		hn = hn.Parent
+	}
+
+	var lang string = ""
+	if hasClassStyle(css, hn, "color", "#000000") {
+		lang = "sql"
+	} else if hasClassStyle(css, hn, "color", "#434343") {
+		lang = "python"
+	}
+
+	return lang
+}
+
 // countTwo starts counting the number of a Atom children in hn.
 // It returns as soon as the count exceeds 1, so the returned value is inexact.
 //

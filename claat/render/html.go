@@ -223,11 +223,18 @@ func (hw *htmlWriter) button(n *types.ButtonNode) {
 }
 
 func (hw *htmlWriter) code(n *types.CodeNode) {
-	hw.writeString("<pre>")
+	hw.writeString("<pre")
+	if n.Lang != "" {
+		hw.writeString(" class=language-")
+		hw.writeString(n.Lang)
+	}
+	hw.writeString(">")
+
 	if !n.Term {
 		hw.writeString("<code")
 		if n.Lang != "" {
-			hw.writeFmt(" language=%q class=%q", n.Lang, n.Lang)
+			hw.writeString(" class=language-")
+			hw.writeString(n.Lang)
 		}
 		hw.writeString(">")
 	}
