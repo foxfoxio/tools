@@ -71,19 +71,29 @@ type codelab struct {
 type MemoryFetcher struct {
 	passMetadata map[string]bool
 	mdParser     parser.MarkdownParser
+	sourceType   srcType
 }
 
 func NewMemoryFetcher(pm map[string]bool, mdp parser.MarkdownParser) *MemoryFetcher {
 	return &MemoryFetcher{
 		passMetadata: pm,
 		mdParser:     mdp,
+		sourceType:   SrcMarkdown,
+	}
+}
+
+func NewGoogleDocMemoryFetcher(pm map[string]bool, mdp parser.MarkdownParser) *MemoryFetcher {
+	return &MemoryFetcher{
+		passMetadata: pm,
+		mdParser:     mdp,
+		sourceType:   SrcGoogleDoc,
 	}
 }
 
 func (m *MemoryFetcher) SlurpCodelab(rc io.ReadCloser) (*codelab, error) {
 	r := &resource{
 		body: rc,
-		typ:  SrcMarkdown,
+		typ:  m.sourceType,
 		mod:  time.Now(),
 	}
 	defer r.body.Close()
