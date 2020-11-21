@@ -182,6 +182,7 @@ the License.
       google-codelab-step .embedded-iframe {
         width: 100%;
         height: 452px;
+        max-height: 100%;
       }
 
       google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.red {
@@ -424,6 +425,19 @@ Prism.languages.sql = {
 	'operator': /[-+*\/=%^~]|&&?|\|\|?|!=?|<(?:=>?|<|>)?|>[>=]?|\b(?:AND|BETWEEN|IN|LIKE|NOT|OR|IS|DIV|REGEXP|RLIKE|SOUNDS LIKE|XOR)\b/i,
 	'punctuation': /[;[\]()`,.]/
 };
+    </script>
+    <script>
+    let iframeSet = new Set()
+    function iframe_onload(iframe) {
+      iframeSet.add(iframe);
+    };
+    window.onmessage = function(event) {
+      const payload = event.data;
+      iframeSet.forEach(function(iframe) {
+        if(payload.source !== iframe.src) return;
+        iframe.style.height = payload.height;
+      })
+    };
     </script>
   </body>
 </html>
