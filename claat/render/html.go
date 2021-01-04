@@ -114,7 +114,10 @@ func (hw *htmlWriter) write(nodes ...types.Node) error {
 		case *types.ScriptNode:
 			hw.script(n)
 			hw.writeString("\n")
+		case *types.EquationNode:
+			hw.equation(n)
 		}
+
 		if hw.err != nil {
 			return hw.err
 		}
@@ -279,6 +282,8 @@ func onlyImages(nodes ...types.Node) bool {
 			return false
 		case *types.ImageNode:
 			continue
+		case *types.EquationNode:
+			continue
 		default:
 			return false
 		}
@@ -389,4 +394,12 @@ var (
 func (hw *htmlWriter) script(n *types.ScriptNode) {
 	fmt.Fprintln(os.Stdout, " ✨ script")
 	hw.writeFmt(textCleaner.Replace(n.URL))
+}
+
+func (hw *htmlWriter) equation(n *types.EquationNode) {
+	delimiter := "$"
+	if n.DisplayMode {
+		delimiter = "$$"
+	}
+	hw.writeFmt(`<e>%[1]s%[2]s%[1]s</e>`, delimiter, n.Equation)
 }

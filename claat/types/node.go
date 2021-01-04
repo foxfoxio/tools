@@ -44,6 +44,7 @@ const (
 	NodeIframe               // Embedded iframe
 	NodeScript               // Embedded script
 	NodeImport               // A node which holds content imported from another resource
+	NodeEquation             // A google chart equation node
 )
 
 // Node is an interface common to all node types.
@@ -79,7 +80,7 @@ func IsHeader(t NodeType) bool {
 
 // IsInline returns true if t is an inline node type.
 func IsInline(t NodeType) bool {
-	return t&(NodeText|NodeURL|NodeImage|NodeButton) != 0
+	return t&(NodeText|NodeURL|NodeImage|NodeButton|NodeEquation) != 0
 }
 
 // EmptyNodes returns true if all of nodes are empty.
@@ -306,7 +307,7 @@ func NewCodeNode(v string, term bool, lang string) *CodeNode {
 		node:  node{typ: NodeCode},
 		Value: v,
 		Term:  term,
-		Lang: lang,
+		Lang:  lang,
 	}
 }
 
@@ -496,10 +497,10 @@ type InfoboxKind string
 const (
 	InfoboxPositive InfoboxKind = "special"
 	InfoboxNegative InfoboxKind = "warning"
-	InfoboxRed InfoboxKind = "red"
-	InfoboxGreen InfoboxKind = "green"
-	InfoboxBlue InfoboxKind = "blue"
-	InfoboxYellow InfoboxKind = "yellow"
+	InfoboxRed      InfoboxKind = "red"
+	InfoboxGreen    InfoboxKind = "green"
+	InfoboxBlue     InfoboxKind = "blue"
+	InfoboxYellow   InfoboxKind = "yellow"
 )
 
 // InfoboxNode is any regular header, a checklist header, or an FAQ header.
@@ -567,7 +568,7 @@ type IframeNode struct {
 
 // Empty returns true if iframe's URL field is empty.
 func (iframe *IframeNode) Empty() bool {
-	return iframe.URL != ""
+	return iframe.URL == ""
 }
 
 // NewScriptNode creates a new embedded script.
@@ -586,5 +587,24 @@ type ScriptNode struct {
 
 // Empty returns true if script's URL field is empty.
 func (script *ScriptNode) Empty() bool {
-	return script.URL != ""
+	return script.URL == ""
+}
+
+// NewEquationNode creates a new EquationNode  with the given equation.
+func NewEquationNode(eq string) *EquationNode {
+	return &EquationNode{
+		node:     node{typ: NodeEquation},
+		Equation: eq,
+	}
+}
+
+type EquationNode struct {
+	node
+	Equation    string
+	DisplayMode bool
+}
+
+// Empty returns true if equation field is empty.
+func (eq *EquationNode) Empty() bool {
+	return eq.Equation == ""
 }

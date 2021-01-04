@@ -724,6 +724,14 @@ func image(ds *docState) types.Node {
 	if s == "" {
 		return nil
 	}
+
+	// check if the image url is google equation
+	if eq, ok := extractGoogleEquation(s); ok {
+		eqNode := types.NewEquationNode(eq)
+		eqNode.MutateBlock(findBlockParent(ds.cur))
+		return eqNode
+	}
+
 	n := types.NewImageNode(s)
 	n.Width = styleFloatValue(ds.cur, "width")
 	n.MutateBlock(findBlockParent(ds.cur))
@@ -941,4 +949,36 @@ func roundDuration(d time.Duration) time.Duration {
 		rd += time.Minute
 	}
 	return rd
+}
+
+var googleChartDomains = []string{"chart.googleapis.com", "www.google.com"}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func extractGoogleEquation(src string) (eq string, ok bool) {
+	u, e := url.Parse(src)
+	if e != nil {
+		return
+	}
+
+	// has valid domain
+	if !contains(googleChartDomains, u.Hostname()) {
+		return
+	}
+
+	// has valid chart type
+	if u.Query().Get("cht") != "tx" {
+		return
+	}
+
+	eq = u.Query().Get("chl")
+	ok = eq != ""
+	return
 }
