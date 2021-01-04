@@ -4,6 +4,7 @@ go 1.11
 
 require (
 	github.com/google/go-cmp v0.5.2
+	github.com/graemephi/goldmark-qjs-katex v0.3.0
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/x1ddos/csslex v0.0.0-20160125172232-7894d8ab8bfe
 	github.com/yuin/goldmark v1.2.1

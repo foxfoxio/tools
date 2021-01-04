@@ -395,11 +395,3 @@ func (hw *htmlWriter) script(n *types.ScriptNode) {
 	fmt.Fprintln(os.Stdout, " ✨ script")
 	hw.writeFmt(textCleaner.Replace(n.URL))
 }
-
-func (hw *htmlWriter) equation(n *types.EquationNode) {
-	delimiter := "$"
-	if n.DisplayMode {
-		delimiter = "$$"
-	}
-	hw.writeFmt(`<e>%[1]s%[2]s%[1]s</e>`, delimiter, n.Equation)
-}
