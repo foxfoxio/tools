@@ -548,6 +548,7 @@ var IframeWhitelist = []string{
 	"runkit.com",
 	"foxfox.io",
 	"trycloudflare.com",
+	"github.com",
 }
 
 // NewIframeNode creates a new embedded iframe.
