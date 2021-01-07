@@ -26,8 +26,8 @@ func (hw *htmlWriter) equation(n *types.EquationNode) {
 	in := []byte(fmt.Sprintf(`<e>%[1]s%[2]s%[1]s</e>`, delimiter, n.Equation))
 	if err := md.Convert(in, &buf); err == nil {
 		n := buf.String()
-		n = strings.TrimPrefix(n, "<p>")
-		n = strings.TrimSuffix(n, "</p>")
+		n = strings.ReplaceAll(n, "<p>", "")
+		n = strings.ReplaceAll(n, "</p>", "")
 		hw.writeString(n)
 	}
 }
