@@ -550,6 +550,7 @@ var IframeWhitelist = []string{
 	"foxfox.io",
 	"trycloudflare.com",
 	"github.com",
+	"geogebra.org",
 }
 
 // NewIframeNode creates a new embedded iframe.
