@@ -436,15 +436,15 @@ Prism.languages.sql = {
     </script>
     <script>
     let iframeSet = new Set()
-    function iframe_onload(iframe) {
+    function iframe_onpageshow(iframe) {
       console.log('iframeSet.add:', iframe.src);
       iframeSet.add(iframe);
-      console.log('window.frames:', window.frames);
     };
 
     window.onmessage = function(event) {
       const payload = event.data;
       iframeSet.forEach(function(iframe) {
+        if(!iframe.src.includes('quiz.foxfox.io')) return;
         console.log('payload.source:', payload.src);
         console.log('iframe.source:', iframe.src);
         if(payload.source !== iframe.src) return;
@@ -455,17 +455,18 @@ Prism.languages.sql = {
       })
     };
 
-    window.addEventListener('hashchange', function() {
-      console.log('hash changed');
+    window.addEventListener('popstate', function() {
+      console.log('popstate');
       iframeSet.forEach(function(iframe) {
-        console.log('/hashchange---------------------------------------');
+        if(!iframe.src.includes('quiz.foxfox.io')) return;
+        console.log('/popstate---------------------------------------');
         console.log('iframe.src:', iframe.src)
         console.log('iframe.style.height:', iframe.style.height);
         console.log('iframe.title:', iframe.title);
         console.log('---------------------------------------/');
         // iframe.style.height = iframe.title;
       })
-    }, false);
+    });
 
     var isInViewport = function (elem) {
       var bounding = elem.getBoundingClientRect();
@@ -478,7 +479,12 @@ Prism.languages.sql = {
     };
 
     window.addEventListener('scroll', function (event) {
+      console.log('scroll');
       iframeSet.forEach(function(iframe) {
+        if(!iframe.src.includes('quiz.foxfox.io')) return;
+        if(!iframe.title) return;
+        if(iframe.title.length <= 0) return;
+
         if (isInViewport(iframe)) {
           console.log('/isInViewport---------------------------------------');
           console.log('iframe.src:', iframe.src)
@@ -486,9 +492,10 @@ Prism.languages.sql = {
           console.log('iframe.title:', iframe.title);
           console.log('---------------------------------------/');
           iframe.style.height = iframe.title;
+          console.log('iframe.style.height:', iframe.style.height);
         }
       })
-    }, false);
+    }, true);
 
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
