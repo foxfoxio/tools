@@ -436,7 +436,7 @@ Prism.languages.sql = {
     </script>
     <script>
     let iframeSet = new Set()
-    function iframe_onpageshow(iframe) {
+    function iframe_onload(iframe) {
       console.log('iframeSet.add:', iframe.src);
       iframeSet.add(iframe);
     };
@@ -444,9 +444,10 @@ Prism.languages.sql = {
     window.onmessage = function(event) {
       const payload = event.data;
       iframeSet.forEach(function(iframe) {
-        if(!iframe.src.includes('quiz.foxfox.io')) return;
-        console.log('payload.source:', payload.src);
-        console.log('iframe.source:', iframe.src);
+        console.log('payload.source:', payload.source);
+        console.log('iframe.src:', iframe.src);
+        console.log('iframe.title:', iframe.title);
+        console.log('iframe.style.height:', iframe.style.height);
         if(payload.source !== iframe.src) return;
         iframe.style.height = payload.height;
         iframe.title = payload.height;
@@ -454,19 +455,6 @@ Prism.languages.sql = {
         console.log('iframe.title:', iframe.title);
       })
     };
-
-    window.addEventListener('popstate', function() {
-      console.log('popstate');
-      iframeSet.forEach(function(iframe) {
-        if(!iframe.src.includes('quiz.foxfox.io')) return;
-        console.log('/popstate---------------------------------------');
-        console.log('iframe.src:', iframe.src)
-        console.log('iframe.style.height:', iframe.style.height);
-        console.log('iframe.title:', iframe.title);
-        console.log('---------------------------------------/');
-        // iframe.style.height = iframe.title;
-      })
-    });
 
     var isInViewport = function (elem) {
       var bounding = elem.getBoundingClientRect();
@@ -481,9 +469,8 @@ Prism.languages.sql = {
     window.addEventListener('scroll', function (event) {
       console.log('scroll');
       iframeSet.forEach(function(iframe) {
-        if(!iframe.src.includes('quiz.foxfox.io')) return;
-        if(!iframe.title) return;
-        if(iframe.title.length <= 0) return;
+        // if(!iframe.title) return;
+        // if(iframe.title.length <= 0) return;
 
         if (isInViewport(iframe)) {
           console.log('/isInViewport---------------------------------------');
