@@ -182,7 +182,7 @@ the License.
       google-codelab-step .embedded-iframe {
         width: 100%;
         height: 452px;
-        max-height: 100%;
+        max-height: unset;
       }
 
       google-codelab #drawer ol li a:active, google-codelab #drawer ol li a:focus {
@@ -435,24 +435,28 @@ Prism.languages.sql = {
 };
     </script>
     <script>
-    console.log('v1.1.0');
+    console.log('v1.2.0');
     let iframeSet = {}
     let earlyPayload = {}
+
+    function applyHeight(iframe, height) {
+      iframe.style.height = height;
+      iframe.title = height;
+    }
 
     function applyEarlyPayload(iframe) {
       const payload = earlyPayload[iframe.src]
       if(payload)
       {
         const { height } = payload;
-        iframe.style.height = height;
-        iframe.title = height;
+        applyHeight(iframe, height);
       }
     }
 
     function iframe_onload(iframe) {
       if(!iframe.src.includes('quiz.foxfox.io')) return;
       
-      console.log('iframeSet.add:', iframe.src);
+      // console.log('iframeSet.add:', iframe.src);
       iframeSet[iframe.src] = iframe;
 
       applyEarlyPayload(iframe);
@@ -470,12 +474,8 @@ Prism.languages.sql = {
         return;
       } 
 
-      console.log('onmessage:', source);
-
-      iframe.style.height = height;
-      iframe.title = height;
+      applyHeight(iframe, height)
     };
-
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
   </body>
