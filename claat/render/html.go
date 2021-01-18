@@ -151,6 +151,18 @@ func (hw *htmlWriter) writeEscape(s string) {
 }
 
 func (hw *htmlWriter) text(n *types.TextNode) {
+	styles := ""
+	if n.Color != "" || n.BackgroundColor != "" {
+		styles = "style=\""
+		if n.Color != "" {
+			styles += fmt.Sprintf("color:%s;", n.Color)
+		}
+		if n.BackgroundColor != "" {
+			styles += fmt.Sprintf("background-color:%s;", n.BackgroundColor)
+		}
+		styles += "\""
+	}
+
 	s := n.Value
 	shouldEsc := true
 	if n.Bold {
@@ -163,6 +175,9 @@ func (hw *htmlWriter) text(n *types.TextNode) {
 		hw.writeString("<code>")
 		shouldEsc = false
 	}
+	if styles != "" {
+		hw.writeFmt("<span %s>", styles)
+	}
 	if shouldEsc {
 		s = htmlTemplate.HTMLEscapeString(n.Value)
 		// Remove whitespace we added to divide adjacent bold and italic nodes.
@@ -170,6 +185,10 @@ func (hw *htmlWriter) text(n *types.TextNode) {
 	}
 	s = ReplaceDoubleCurlyBracketsWithEntity(s)
 	hw.writeString(strings.Replace(s, "\n", "<br>", -1))
+
+	if styles != "" {
+		hw.writeFmt("</span>")
+	}
 	if n.Code {
 		hw.writeString("</code>")
 	}

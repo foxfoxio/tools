@@ -86,10 +86,10 @@ func isInfobox(css cssStyle, hn *html.Node) bool {
 		return false
 	}
 	return hasClassStyle(css, hn, "background-color", ibPositiveColor) ||
-		isInfoboxNegative(css, hn) || 
-		isInfoboxRed(css, hn) || 
-		isInfoboxGreen(css, hn) || 
-		isInfoboxBlue(css, hn) || 
+		isInfoboxNegative(css, hn) ||
+		isInfoboxRed(css, hn) ||
+		isInfoboxGreen(css, hn) ||
+		isInfoboxBlue(css, hn) ||
 		isInfoboxYellow(css, hn)
 }
 
@@ -152,6 +152,26 @@ func isTable(hn *html.Node) bool {
 
 func isList(hn *html.Node) bool {
 	return hn.DataAtom == atom.Ul || hn.DataAtom == atom.Ol
+}
+
+func getStyledColorValue(css cssStyle, hn *html.Node) string {
+	if hn == nil {
+		return ""
+	}
+	if v := styleValue(hn, "color"); v != "" {
+		return v
+	}
+	return getClassStyleValue(css, hn, "color")
+}
+
+func getStyledBackgroundColorValue(css cssStyle, hn *html.Node) string {
+	if hn == nil {
+		return ""
+	}
+	if v := styleValue(hn, "background-color"); v != "" {
+		return v
+	}
+	return getClassStyleValue(css, hn, "background-color")
 }
 
 func getLanguageFromColor(css cssStyle, hn *html.Node) string {

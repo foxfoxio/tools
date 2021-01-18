@@ -884,6 +884,10 @@ func text(ds *docState) types.Node {
 		n.Bold = bold
 		n.Italic = italic
 		n.Code = code
+		if ds.cur.Parent != nil && ds.cur.Parent.DataAtom == atom.Span {
+			n.Color = getStyledColorValue(ds.css, ds.cur.Parent)
+			n.BackgroundColor = getStyledBackgroundColorValue(ds.css, ds.cur.Parent)
+		}
 	}
 	n.MutateBlock(findBlockParent(ds.cur))
 	return n

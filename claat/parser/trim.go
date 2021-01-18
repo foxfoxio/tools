@@ -70,7 +70,12 @@ func trimNodes(nodes []types.Node) []types.Node {
 func concatNodes(a, b types.Node) bool {
 	switch {
 	case a.Type() == types.NodeText && b.Type() == types.NodeText:
-		return concatText(a, b)
+		at := a.(*types.TextNode)
+		bt := b.(*types.TextNode)
+		if at.Color == bt.Color && at.BackgroundColor == bt.BackgroundColor {
+			return concatText(a, b)
+		}
+		return false
 	case a.Type() == types.NodeCode && b.Type() == types.NodeCode:
 		return concatCode(a, b)
 	case a.Type() == types.NodeCode && b.Type() == types.NodeText:

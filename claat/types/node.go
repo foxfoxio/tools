@@ -289,10 +289,12 @@ func NewTextNode(v string) *TextNode {
 // TextNode is a simple node containing text as a string value.
 type TextNode struct {
 	node
-	Bold   bool
-	Italic bool
-	Code   bool
-	Value  string
+	Bold            bool
+	Italic          bool
+	Code            bool
+	Value           string
+	Color           string
+	BackgroundColor string
 }
 
 // Empty returns true if tn.Value is zero, excluding space runes.
