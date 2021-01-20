@@ -436,7 +436,7 @@ Prism.languages.sql = {
 };
     </script>
     <script>
-    console.log('v1.2.0');
+    console.log('v1.3.0');
     let iframeSet = {}
     let earlyPayload = {}
 
@@ -455,11 +455,9 @@ Prism.languages.sql = {
     }
 
     function iframe_onload(iframe) {
-      if(!iframe.src.includes('quiz.foxfox.io')) return;
-      
-      // console.log('iframeSet.add:', iframe.src);
-      iframeSet[iframe.src] = iframe;
+      if(!iframe.src.includes('.foxfox.io')) return;
 
+      iframeSet[iframe.src] = iframe;
       applyEarlyPayload(iframe);
     };
 
