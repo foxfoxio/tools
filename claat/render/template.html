@@ -22,6 +22,47 @@ the License.
     <meta name="theme-color" content="#4F7DC9" />
     <meta charset="UTF-8" />
     <title>{{.Meta.Title}}</title>
+    <script>
+      console.log('v1.3.1');
+      let iframeSet = {}
+      let earlyPayload = {}
+  
+      function applyHeight(iframe, height) {
+        iframe.style.height = height;
+        iframe.title = height;
+      }
+  
+      function applyEarlyPayload(iframe) {
+        const payload = earlyPayload[iframe.src]
+        if(payload)
+        {
+          const { height } = payload;
+          applyHeight(iframe, height);
+        }
+      }
+  
+      function iframe_onload(iframe) {
+        if(!iframe.src.includes('.foxfox.io')) return;
+  
+        iframeSet[iframe.src] = iframe;
+        applyEarlyPayload(iframe);
+      };
+  
+      window.onmessage = function(event) {
+        const payload  = event.data;
+        const { source, height } = payload;
+        const iframe = iframeSet[source]
+        if(!source) return;
+        if(height==='NaNpx') return;
+  
+        if(!iframe){
+          earlyPayload[source] = payload
+          return;
+        } 
+  
+        applyHeight(iframe, height)
+      };
+    </script>
     <link
       rel="stylesheet"
       href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono"
@@ -434,47 +475,6 @@ Prism.languages.sql = {
 	'operator': /[-+*\/=%^~]|&&?|\|\|?|!=?|<(?:=>?|<|>)?|>[>=]?|\b(?:AND|BETWEEN|IN|LIKE|NOT|OR|IS|DIV|REGEXP|RLIKE|SOUNDS LIKE|XOR)\b/i,
 	'punctuation': /[;[\]()`,.]/
 };
-    </script>
-    <script>
-    console.log('v1.3.0');
-    let iframeSet = {}
-    let earlyPayload = {}
-
-    function applyHeight(iframe, height) {
-      iframe.style.height = height;
-      iframe.title = height;
-    }
-
-    function applyEarlyPayload(iframe) {
-      const payload = earlyPayload[iframe.src]
-      if(payload)
-      {
-        const { height } = payload;
-        applyHeight(iframe, height);
-      }
-    }
-
-    function iframe_onload(iframe) {
-      if(!iframe.src.includes('.foxfox.io')) return;
-
-      iframeSet[iframe.src] = iframe;
-      applyEarlyPayload(iframe);
-    };
-
-    window.onmessage = function(event) {
-      const payload  = event.data;
-      const { source, height } = payload;
-      const iframe = iframeSet[source]
-      if(!source) return;
-      if(height==='NaNpx') return;
-
-      if(!iframe){
-        earlyPayload[source] = payload
-        return;
-      } 
-
-      applyHeight(iframe, height)
-    };
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
   </body>
