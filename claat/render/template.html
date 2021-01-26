@@ -23,7 +23,7 @@ the License.
     <meta charset="UTF-8" />
     <title>{{.Meta.Title}}</title>
     <script>
-      console.log('v1.3.1');
+      console.log('v1.4.0');
       let iframeSet = {}
       let earlyPayload = {}
   
@@ -426,9 +426,50 @@ the License.
         background: #a6e22e;
         color: #272822;
       }
+
+      pre[class*=language-].line-numbers {
+        position: relative;
+        padding-left: 2.4em;
+        counter-reset: linenumber
+      }
+
+      pre[class*=language-].line-numbers>code {
+        position: relative;
+        white-space: inherit
+      }
+
+      .line-numbers .line-numbers-rows {
+        margin-left: 1.4em;
+        line-height: 1.4em;
+        width: fit-content;
+        padding: 0.8em 0.5em;
+        color: rgb(153, 153, 153);
+        background-color: lightgrey;
+        position: absolute;
+        pointer-events: none;
+        top: -12px;
+        font-size: 100%;
+        left: -3.8em;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none
+      }
+
+      .line-numbers-rows>span {
+        display: block;
+        counter-increment: linenumber
+      }
+
+      .line-numbers-rows>span:before {
+        content: counter(linenumber);
+        color: #999;
+        display: block;
+        text-align: right
+      }
     </style>
   </head>
-  <body>
+  <body class="line-numbers">
     <google-codelab-analytics gaid="{{.GlobalGA}}"></google-codelab-analytics>
     <google-codelab
       codelab-gaid="{{.Meta.GA}}"
@@ -450,6 +491,7 @@ the License.
     <script src="{{.Prefix}}/codelab-elements/codelab-elements.js"></script>
     <script src="//support.google.com/inapp/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/prism.min.js" integrity="sha512-9+422Bs3A87UkWfp+qV80Nfv9arhbCXKY1rxrF2seorI36mIIstMiuBfyKLF1yH1nnzQkEWq2xrzT4XU3Z+vrA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/line-numbers/prism-line-numbers.min.js" integrity="sha512-br8H6OngKoLht57WKRU5jz3Vr0vF+Tw4G6yhNN2F3dSDheq4JiaasROPJB1wy7PxPk7kV/+5AIbmoZLxxx7Zow==" crossorigin="anonymous"></script>
     <script>
 Prism.languages.sql = {
 	'comment': {
