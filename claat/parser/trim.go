@@ -72,7 +72,7 @@ func concatNodes(a, b types.Node) bool {
 	case a.Type() == types.NodeText && b.Type() == types.NodeText:
 		at := a.(*types.TextNode)
 		bt := b.(*types.TextNode)
-		if at.Color == bt.Color && at.BackgroundColor == bt.BackgroundColor {
+		if bt.Empty() || at.Color == bt.Color && at.BackgroundColor == bt.BackgroundColor {
 			return concatText(a, b)
 		}
 		return false
@@ -224,7 +224,9 @@ func CompactNodes(nodes []types.Node) []types.Node {
 		if last == nil || !concatNodes(last, n) {
 			if requiresSpacer(last, n) {
 				// Append non-breaking zero-width space.
-				res = append(res, types.NewTextNode(string('\uFEFF')))
+				spacer := types.NewTextNode(string('\uFEFF'))
+				spacer.MutateBlock(n.Block()) // copy node block, to prevent block splitting
+				res = append(res, spacer)
 			}
 			res = append(res, n)
 
