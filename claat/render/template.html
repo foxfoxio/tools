@@ -23,7 +23,37 @@ the License.
     <meta charset="UTF-8" />
     <title>{{.Meta.Title}}</title>
     <script>
-      console.log('v1.4.2');
+    // To fix wrong position iframe inner content by refresh when in view
+    window.addEventListener('load', function(){
+      let list = document.querySelectorAll('#steps > google-codelab-step:not([selected]) > div > div > iframe');
+      list = [...list.values()];
+
+      const reveal = (iframe) => {
+        iframe.src = iframe.src;
+        observer.unobserve(iframe);
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        const iframe = entries[0].target;
+
+        if (entries[0].intersectionRatio > 0) { 
+          // In view
+          if(iframe.src.indexOf('https://datastudio.google.com/')===0) {
+            reveal(iframe);
+          } else if(iframe.src.indexOf('https://docs.google.com/spreadsheets/')===0) {
+            reveal(iframe);
+          }
+        }
+      });
+
+      list.forEach(iframe=>{
+        observer.observe(iframe);
+      });
+    })
+    </script>
+    <script>
+      console.log('v1.5.0');
+      // To fix wrong init react app height when not in view.
       let iframeSet = {}
       let earlyPayload = {}
   
@@ -42,10 +72,11 @@ the License.
       }
   
       function iframe_onload(iframe) {
-        if(!iframe.src.includes('.foxfox.io')) return;
-  
-        iframeSet[iframe.src] = iframe;
-        applyEarlyPayload(iframe);
+        if(iframe.src.includes('.foxfox.io'))
+        {
+          iframeSet[iframe.src] = iframe;
+          applyEarlyPayload(iframe);
+        }
       };
   
       window.onmessage = function(event) {
