@@ -48,6 +48,7 @@ const (
 	MetaBadgePath        = "badge path"
 	MetaSummary          = "summary"
 	MetaID               = "id"
+	MetaSlug             = "slug"
 	MetaCategories       = "categories"
 	MetaEnvironments     = "environments"
 	MetaStatus           = "status"
@@ -458,6 +459,9 @@ func addMetadataToCodelab(m map[string]string, c *types.Codelab, opts parser.Opt
 		case MetaID:
 			// Directly assign the ID to the codelab field.
 			c.ID = v
+		case MetaSlug:
+			// Directly assign the slug to the codelab field.
+			c.Slug = v
 		case MetaCategories:
 			// Standardize the categories and append to codelab field.
 			c.Categories = append(c.Categories, standardSplit(v)...)

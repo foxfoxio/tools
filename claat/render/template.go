@@ -94,6 +94,7 @@ var funcMap = map[string]interface{}{
 
 		res := ""
 		res += kvLine(mdParse.MetaID, meta.ID)
+		res += kvLine(mdParse.MetaSlug, meta.Slug)
 		res += kvLine(mdParse.MetaSummary, meta.Summary)
 		if meta.Status != nil {
 			res += kvLine(mdParse.MetaStatus, meta.Status.String())

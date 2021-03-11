@@ -390,6 +390,8 @@ func metaTable(ds *docState) {
 		switch fieldName {
 		case "id", "url":
 			ds.clab.ID = s
+		case "slug":
+			ds.clab.Slug = s
 		case "author", "authors":
 			ds.clab.Authors = s
 		case "badge path":

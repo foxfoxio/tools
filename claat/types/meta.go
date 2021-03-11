@@ -26,6 +26,7 @@ import (
 // Meta contains a single codelab metadata.
 type Meta struct {
 	ID         string            `json:"id"`                   // ID is also part of codelab URL
+	Slug       string            `json:"slug"`                 // Codelab slug
 	Duration   int               `json:"duration"`             // Codelab duration in minutes
 	Title      string            `json:"title"`                // Codelab title
 	Authors    string            `json:"authors,omitempty"`    // Arbitrary authorship text
